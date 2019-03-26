@@ -1,6 +1,5 @@
 <?php
-// define('token', "328312279:AAEgIRpW8HDF8RB3gQR9KdU6_tm8feZSSkI"); //test bot @test1209bot
-define('token', "563281132:AAFim8ZLj5kzQ32_6T-_iosgRGZTFhYGAxk"); // @iran_ankara_manage_bot
+define('token', "123456:your_key_api-bot"); // @botfather https://telegram.me/botfather with the following text: /newbot
 
 class Send{
 
