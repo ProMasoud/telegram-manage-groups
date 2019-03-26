@@ -56,41 +56,41 @@ class Home extends CI_Controller
 
         $this->message = json_decode(file_get_contents('php://input'), true);
 
-        $this->edit = $this->message['edited_message'] ? 'edited_message' : 'message';
+        $this->edit = isset($this->message['edited_message']) ? 'edited_message' : 'message';
 
         $this->message_id = $this->message[$this->edit]['message_id'];
 
-        print_r([$this->message_id,$this->message[$this->edit],$this->edit]);
+        // print_r([$this->message_id,$this->message[$this->edit],$this->edit]);
 
-        $this->message_text = trim($this->message[$this->edit]['text']);
+        $this->message_text = isset($this->message[$this->edit]['text']) ? trim($this->message[$this->edit]['text']) :  "";
 
-        $this->user_id = $this->message[$this->edit]['from']['id'];
+        $this->user_id = isset($this->message[$this->edit]['from']['id']) ? $this->message[$this->edit]['from']['id'] : null;
 
-        $this->chat_id = $this->message[$this->edit]['chat']['id'];
+        $this->chat_id = isset($this->message[$this->edit]['chat']['id']) ? $this->message[$this->edit]['chat']['id'] : null;
 
-        $this->new_member = $this->message[$this->edit]['new_chat_members'];
+        $this->new_member = isset($this->message[$this->edit]['new_chat_members']) ? $this->message[$this->edit]['new_chat_members'] : null;
 
-        $this->sticker = $this->message[$this->edit]['sticker'];
+        $this->sticker = isset($this->message[$this->edit]['sticker']) ? $this->message[$this->edit]['sticker'] : null;
 
-        $this->photo = $this->message[$this->edit]['photo'];
+        $this->photo = isset($this->message[$this->edit]['photo']) ? $this->message[$this->edit]['photo'] : null;
 
-        $this->gif = $this->message[$this->edit]['document']['mime_type'];
+        $this->gif = isset($this->message[$this->edit]['document']['mime_type']) ? $this->message[$this->edit]['document']['mime_type'] : null;
 
-        $this->link = $this->message[$this->edit]['caption_entities'] || $this->message[$this->edit]['entities'];
+        $this->link = (isset($this->message[$this->edit]['caption_entities']) || isset($this->message[$this->edit]['entities']));
 
-        $this->file = $this->message[$this->edit]['document'];
+        $this->file = isset($this->message[$this->edit]['document']) ? $this->message[$this->edit]['document'] : null;
 
-        $this->audio = $this->message[$this->edit]['audio'];
+        $this->audio = isset($this->message[$this->edit]['audio']) ? $this->message[$this->edit]['audio'] : null;
 
-        $this->forward = $this->message[$this->edit]['forward_from_chat'];
+        $this->forward = isset($this->message[$this->edit]['forward_from_chat']) ? $this->message[$this->edit]['forward_from_chat'] : null;
 
-        $this->voice = $this->message[$this->edit]['voice'];
+        $this->voice = isset($this->message[$this->edit]['voice']) ? $this->message[$this->edit]['voice'] : null;
 
-        $this->video = $this->message[$this->edit]['video'];
+        $this->video = isset($this->message[$this->edit]['video']) ? $this->message[$this->edit]['video'] : null;
 
-        $this->left_member = $this->message[$this->edit]['left_chat_member'];
+        $this->left_member = isset($this->message[$this->edit]['left_chat_member']) ? $this->message[$this->edit]['left_chat_member'] : null;
 
-        $this->contact = $this->message[$this->edit]['contact'] ? $this->message[$this->edit]['contact'] : null;
+        $this->contact = isset($this->message[$this->edit]['contact']) ? $this->message[$this->edit]['contact'] : null;
     }
 
 
@@ -103,8 +103,8 @@ class Home extends CI_Controller
         // exit;
         try {
             //-------------------------     Initiolize user in database     -------------------------
-            if (!$this->message['callback_query']) {
-                $this->db_user->set_user($this->message);
+            if (!isset($this->message['callback_query'])) {
+                $this->db_user->set_user($this->message, $this->edit);
                 // return true;
             }
             //---------------------------------------------------------------------------------------
@@ -356,7 +356,7 @@ class Home extends CI_Controller
                             $this->send->deleteMessage($this->message[$this->edit]['chat']['id'], $this->message[$this->edit]['message_id']);
                         }
                     }
-                }, $this->message[$this->edit]['caption_entities'] ? $this->message[$this->edit]['caption_entities'] : $this->message[$this->edit]['entities']);
+                }, isset($this->message[$this->edit]['caption_entities']) ? $this->message[$this->edit]['caption_entities'] : $this->message[$this->edit]['entities']);
                 // return true;
             }
 
@@ -422,7 +422,7 @@ class Home extends CI_Controller
             }
 
 
-            if ($this->message['callback_query']) {
+            if (isset($this->message['callback_query'])) {
                 if (in_array($this->message['callback_query']['data'], $this->send_allowd)) {
                     $settings = $this->db->query("SELECT * FROM settings WHERE name = ? AND group_id = ?", [ $this->message['callback_query']['data'].'_send_allowed' , $this->group_id])->row_array();
                     // $settings = $this->db->query("SELECT * FROM settings WHERE name = ? AND group_id = ?" , [ $this->message['callback_query']['data'].'_send_allowed' , $this->message['callback_query']['message']['chat']['id']])->row_array();
